@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include("CMakeFindDependencyMacro")
+
+find_dependency("CycloneDDS-CXX" "@exqudens-cpp-dds_CMAKE_PACKAGE_CycloneDDS-CXX_VERSION@")
+find_dependency("CycloneDDS" "@exqudens-cpp-dds_CMAKE_PACKAGE_CycloneDDS_VERSION@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
+
+check_required_components("@PROJECT_NAME@")

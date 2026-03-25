@@ -1,0 +1,11 @@
+module exqudens {
+    module dds {
+        module model {
+            struct BytesMessage {
+                uint32 id;
+                sequence<uint8> data;
+            };
+            #pragma keylist BytesMessage id
+        };
+    };
+};
