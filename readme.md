@@ -3,8 +3,8 @@
 ## bash-test
 
 - `pushd build/2/test/bin && ./test-app --gtest_list_tests && popd || popd`
-- `pushd build/2/test/bin && ./test-app --gtest_filter=OtherUnitTests.test1 && popd || popd`
-- `pushd build/2/test/bin && ./test-app --gtest_filter=OtherUnitTests.test2 && popd || popd`
+- `pushd build/2/test/bin && ./test-app --gtest_filter=PerformanceSystemTests.test1 && popd || popd`
+- `pushd build/2/test/bin && ./test-app --gtest_filter=PerformanceSystemTests.test2 && popd || popd`
 
 ## how-to-test-all-presets
 
@@ -25,3 +25,15 @@
 3. `git clean -xdf`
 4. `cmake --list-presets | cut -d ':' -f2 | xargs -I '{}' echo '{}' | xargs -I '{}' bash -c "cmake --preset {} || exit 255"`
 5. `cmake --list-presets | cut -d ':' -f2 | xargs -I '{}' echo '{}' | xargs -I '{}' bash -c "cmake --build --preset {} --target conan-export || exit 255"`
+
+## vscode
+
+1. `git clean -xdf`
+2. `cmake --preset ${preset}`
+3. `cmake --build --preset ${preset} --target vscode`
+4. use vscode debugger launch configurations: `test-app`
+
+### extensions
+
+For `command-variable-launch.json`
+use [Command Variable](https://marketplace.visualstudio.com/items?itemName=rioj7.command-variable#pickstringremember) `version >= v1.69.0`

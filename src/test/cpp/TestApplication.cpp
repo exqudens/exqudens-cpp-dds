@@ -16,6 +16,7 @@
 
 // include test files
 #include "unit/OtherUnitTests.hpp"
+#include "system/PerformanceSystemTests.hpp"
 
 #define CALL_INFO std::string(__FUNCTION__) + "(" + std::filesystem::path(__FILE__).filename().string() + ":" + std::to_string(__LINE__) + ")"
 
@@ -34,7 +35,8 @@ int TestApplication::run(int argc, char** argv) {
         std::string loggingFile = (executableDir / "log" / "log.txt").generic_string();
         size_t loggingFileSize = 1073741824; // 1 gb
         std::set<std::string> loggerIds = {
-            exqudens::dds::OtherUnitTests::LOGGER_ID,
+            OtherUnitTests::LOGGER_ID,
+            PerformanceSystemTests::LOGGER_ID,
             LOGGER_ID
         };
         std::string loggingConfigResult = exqudens::Log::configure(loggingFile, loggingFileSize, loggerIds);

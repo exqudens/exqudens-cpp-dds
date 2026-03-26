@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cctype>
+#include <cstring>
 #include <stdexcept>
 #include <filesystem>
 #include <numeric>
@@ -383,6 +384,33 @@ std::string TestUtils::toString(const std::vector<std::any>& value) {
             }
         }
         result += "]";
+        return result;
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+}
+
+std::vector<uint8_t> TestUtils::sizeToBytes(const std::optional<size_t>& value) {
+    try {
+        std::vector<uint8_t> result = {};
+        if (value) {
+            result.resize(sizeof(size_t));
+            std::memcpy(result.data(), &value.value(), result.size());
+        }
+        return result;
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+}
+
+std::optional<size_t> TestUtils::bytesToSize(const std::vector<uint8_t>& value) {
+    try {
+        std::optional<size_t> result = {};
+        if (!value.empty() && value.size() == sizeof(size_t)) {
+            size_t v;
+            std::memcpy(&v, value.data(), value.size());
+            result = v;
+        }
         return result;
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));

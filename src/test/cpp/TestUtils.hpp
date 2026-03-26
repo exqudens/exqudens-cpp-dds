@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <any>
 #include <optional>
@@ -72,5 +74,9 @@ class TEST_LIB_EXPORT TestUtils {
         static std::string toString(const std::map<std::string, std::any>& value);
 
         static std::string toString(const std::vector<std::any>& value);
+
+        static std::vector<uint8_t> sizeToBytes(const std::optional<size_t>& value);
+
+        static std::optional<size_t> bytesToSize(const std::vector<uint8_t>& value);
 
 };

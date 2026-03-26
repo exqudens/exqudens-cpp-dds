@@ -501,6 +501,7 @@ if(NOT "${SKIP_TEST}")
         "src/test/cpp/TestApplication.cpp"
 
         "src/test/cpp/unit/OtherUnitTests.hpp"
+        "src/test/cpp/system/PerformanceSystemTests.hpp"
     )
     generate_export_header("test-lib"
         BASE_NAME "TEST_LIB"
@@ -665,17 +666,19 @@ if("${USE_CONAN}")
 endif()
 
 add_custom_target("vscode"
+    COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${PROJECT_SOURCE_DIR}/.vscode"
+    COMMAND "${CMAKE_COMMAND}" "-E" "copy" "${PROJECT_SOURCE_DIR}/src/test/resources/vscode/tasks.json" "${PROJECT_SOURCE_DIR}/.vscode"
     COMMAND "${CMAKE_COMMAND}" "-P" "cmake/util.cmake" "--" "vscode"
             SOURCE_DIR "${PROJECT_SOURCE_DIR}"
             BINARY_DIR "${PROJECT_BINARY_DIR}"
 
             LAUNCH_GENERATE "1"
             LAUNCH_FILE_OVERWRITE "1"
-            LAUNCH_TEMPLATE_FILE "${PROJECT_SOURCE_DIR}/src/test/resources/vscode/launch.json"
+            LAUNCH_TEMPLATE_FILE "${PROJECT_SOURCE_DIR}/src/test/resources/vscode/command-variable-launch.json"
             LAUNCH_FILE "${PROJECT_SOURCE_DIR}/.vscode/launch.json"
             LAUNCH_TESTS_FILE "${PROJECT_BINARY_DIR}/test/bin/tests.json"
             LAUNCH_TESTS "*.*" "*UnitTests.*"
-            LAUNCH_DEFAULT_TEST "*.*"
+            LAUNCH_TESTS_INDENT "20"
     DEPENDS "${PROJECT_NAME}" "test-app"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     USES_TERMINAL
