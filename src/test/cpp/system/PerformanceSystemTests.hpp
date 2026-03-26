@@ -26,6 +26,7 @@ class PerformanceSystemTests: public testing::Test {
     public:
 
         inline static const char* LOGGER_ID = "PerformanceSystemTests";
+        inline static const size_t FACTOR = 1000;
 
     protected:
 
@@ -34,7 +35,7 @@ class PerformanceSystemTests: public testing::Test {
             const std::optional<std::chrono::system_clock::time_point>& bgnTimePoint,
             size_t maxSeconds,
             bool store,
-            size_t factor = 1000
+            size_t factor = FACTOR
         ) {
             try {
                 std::chrono::system_clock::duration diff = {};
@@ -62,13 +63,17 @@ class PerformanceSystemTests: public testing::Test {
         }
 
         static std::map<size_t, size_t> createMicroSecondsCountMap(
-            size_t maxSeconds,
-            size_t factor = 1000
+            size_t x,
+            size_t y = 1000,
+            size_t factor = FACTOR
         ) {
             try {
                 std::map<size_t, size_t> result = {};
-                for (size_t i = 0; i <= maxSeconds; i++) {
-                    result[factor * i] = 0;
+                size_t size = x * y;
+                for (size_t i = 0; i < size; i++) {
+                    size_t key = i;
+                    key *= factor;
+                    result[key] = 0;
                 }
                 result[std::numeric_limits<size_t>::max()] = 0;
                 return result;
@@ -146,6 +151,27 @@ TEST_F(PerformanceSystemTests, test2) {
         reader.reset();
 
         for (const auto& pair : microSecondsCountMap) EXQUDENS_LOG_INFO(LOGGER_ID) << "microSecondsCountMap[" << pair.first << "]: " << pair.second;
+
+        EXQUDENS_LOG_INFO(LOGGER_ID) << "end";
+    } catch (const std::exception& e) {
+        std::string errorMessage = TestUtils::toString(e);
+        std::cout << LOGGER_ID << " ERROR: " << errorMessage << std::endl;
+        FAIL() << errorMessage;
+    }
+}
+
+TEST_F(PerformanceSystemTests, test999) {
+    try {
+        std::string testGroup = testing::UnitTest::GetInstance()->current_test_info()->test_suite_name();
+        std::string testCase = testing::UnitTest::GetInstance()->current_test_info()->name();
+        EXQUDENS_LOG_INFO(LOGGER_ID) << "bgn";
+
+        size_t maxSeconds = 2;
+        std::map<size_t, size_t> microSecondsCountMap = createMicroSecondsCountMap(maxSeconds);
+        for (const auto& pair : microSecondsCountMap) {
+            EXQUDENS_LOG_INFO(LOGGER_ID) << "microSecondsCountMap[" << pair.first << "]: " << pair.second;
+        }
+        EXQUDENS_LOG_INFO(LOGGER_ID) << "microSecondsCountMap.size: " << microSecondsCountMap.size();
 
         EXQUDENS_LOG_INFO(LOGGER_ID) << "end";
     } catch (const std::exception& e) {
