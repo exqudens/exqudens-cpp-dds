@@ -31,10 +31,14 @@ int TestApplication::run(int argc, char** argv) {
         TestUtils::init(args);
 
         // logging
-        std::filesystem::path executableDir(TestUtils::getExecutableDir());
+        std::filesystem::path executableDir(TestUtils::getExecutableDir().value());
         std::string loggingFile = (executableDir / "log" / "log.txt").generic_string();
         size_t loggingFileSize = 1073741824; // 1 gb
         std::set<std::string> loggerIds = {
+            "exqudens.ThreadPool",
+            "exqudens.dds.Factory",
+            "exqudens.dds.Writer",
+            "exqudens.dds.Reader",
             OtherUnitTests::LOGGER_ID,
             PerformanceSystemTests::LOGGER_ID,
             LOGGER_ID
@@ -49,6 +53,7 @@ int TestApplication::run(int argc, char** argv) {
 
         int result = RUN_ALL_TESTS();
 
+        EXQUDENS_LOG_INFO(LOGGER_ID) << "result: " << result;
         EXQUDENS_LOG_INFO(LOGGER_ID) << "end";
 
         return result;

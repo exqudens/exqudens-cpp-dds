@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <cctype>
 #include <cstring>
+#include <cstdio>
+#include <array>
 #include <stdexcept>
 #include <filesystem>
 #include <numeric>
@@ -16,18 +18,25 @@
 void TestUtils::init(const std::vector<std::string>& input) {
     try {
         for (size_t i = 0; i < input.size(); i++) {
-            if (!data.executableFile.has_value() && i == 0) {
+            if (!data.executableFile && i == 0) {
                 std::filesystem::path path = std::filesystem::path(input.at(i));
                 data.executableFile = path.generic_string();
                 if (!path.parent_path().empty()) {
                     data.executableDir = path.parent_path().generic_string();
                 }
             }
-            if (!data.projectBinaryDir.has_value() && i != 0 && input.at(i).starts_with("--project-binary-dir=")) {
+            if (!data.projectBinaryDir && i != 0 && input.at(i).starts_with("--project-binary-dir=")) {
                 std::vector<std::string> parts = split(input.at(i), "=");
                 if (parts.size() > 1) {
-                    std::filesystem::path path = std::filesystem::path(parts.at(1));
-                    data.projectBinaryDir = path.generic_string();
+                    std::filesystem::path value = std::filesystem::path(parts.at(1));
+                    data.projectBinaryDir = value.generic_string();
+                }
+            }
+            if (!data.timeout && i != 0 && input.at(i).starts_with("--timeout=")) {
+                std::vector<std::string> parts = split(input.at(i), "=");
+                if (parts.size() > 1) {
+                    size_t value = std::stoull(parts.at(1));
+                    data.timeout = value;
                 }
             }
         }
@@ -36,41 +45,55 @@ void TestUtils::init(const std::vector<std::string>& input) {
     }
 }
 
-std::string TestUtils::getExecutableFile() {
+std::optional<std::string> TestUtils::getExecutableFile() {
     try {
-        return data.executableFile.value();
+        return data.executableFile;
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));
     }
 }
 
-std::string TestUtils::getExecutableDir() {
+std::optional<std::string> TestUtils::getExecutableDir() {
     try {
-        return data.executableDir.value();
+        return data.executableDir;
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));
     }
 }
 
-std::string TestUtils::getProjectBinaryDir() {
+std::optional<std::string> TestUtils::getProjectBinaryDir() {
     try {
-        return data.projectBinaryDir.value();
+        return data.projectBinaryDir;
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));
     }
 }
 
-std::string TestUtils::getTestOutputDir(const std::string& testGroup, const std::string& testCase) {
+std::optional<size_t> TestUtils::getTimeout() {
     try {
-        std::filesystem::path result(getProjectBinaryDir());
-        result = result / "test" / "output" / testGroup / testCase;
-        return result.generic_string();
+        return data.timeout;
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));
     }
 }
 
-std::string TestUtils::getProjectSourceDir() {
+std::optional<std::string> TestUtils::getTestOutputDir(const std::string& testGroup, const std::string& testCase) {
+    try {
+        std::optional<std::string> result = {};
+        std::optional<std::string> projectBinaryDir = getProjectBinaryDir();
+        if (!projectBinaryDir) {
+            return result;
+        }
+        std::filesystem::path path(projectBinaryDir.value());
+        path = path / "test" / "output" / testGroup / testCase;
+        result = path.generic_string();
+        return result;
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+}
+
+std::optional<std::string> TestUtils::getProjectSourceDir() {
     try {
         return std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path().generic_string();
     } catch (...) {
@@ -78,11 +101,86 @@ std::string TestUtils::getProjectSourceDir() {
     }
 }
 
-std::string TestUtils::getTestInputDir(const std::string& testGroup, const std::string& testCase) {
+std::optional<std::string> TestUtils::getTestInputDir(const std::string& testGroup, const std::string& testCase) {
     try {
-        std::filesystem::path result(getProjectSourceDir());
-        result = result / "src" / "test" / "resources" / testGroup / testCase;
-        return result.generic_string();
+        std::optional<std::string> result = {};
+        std::optional<std::string> projectSourceDir = getProjectSourceDir();
+        if (!projectSourceDir) {
+            return result;
+        }
+        std::filesystem::path path(projectSourceDir.value());
+        path = path / "src" / "test" / "resources" / testGroup / testCase;
+        result = path.generic_string();
+        return result;
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+}
+
+std::string TestUtils::lineSeparator() {
+    try {
+        std::optional<std::string> result = {};
+#if defined(_WIN32) || defined(_WIN64)
+        result = "\r\n";
+#elif defined(__APPLE__)
+        result = "\r";
+#elif defined(__linux__)
+        result = "\n";
+#endif
+        return result.value();
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+}
+
+std::pair<int, std::string> TestUtils::executeCommandLine(const std::string& value) {
+    try {
+        int exitCode = 1;
+        std::string output = "unknown error";
+
+        FILE* pipe = nullptr;
+        std::optional<std::exception> exception = {};
+
+#if defined(_WIN32) || defined(_WIN64)
+        pipe = _popen(value.c_str(), "r");
+#else
+        pipe = popen(value.c_str(), "r");
+#endif
+
+        if (!pipe) {
+            throw std::runtime_error(CALL_INFO + ": failed to open process: '" + value + "'");
+        }
+
+        try {
+            output = "";
+            std::array<char, 1024> buffer = {};
+            while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+                output += buffer.data();
+            }
+#if defined(_WIN32) || defined(_WIN64)
+            exitCode = _pclose(pipe);
+#else
+            exitCode = pclose(pipe);
+#endif
+        } catch (const std::exception& e) {
+            exception = std::runtime_error(CALL_INFO + ": " + e.what());
+#if defined(_WIN32) || defined(_WIN64)
+            exitCode = _pclose(pipe);
+#else
+            exitCode = pclose(pipe);
+#endif
+            throw exception.value();
+        } catch (...) {
+            exception = std::runtime_error(CALL_INFO + ": unknown error");
+#if defined(_WIN32) || defined(_WIN64)
+            exitCode = _pclose(pipe);
+#else
+            exitCode = pclose(pipe);
+#endif
+            throw exception.value();
+        }
+
+        return {exitCode, output};
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));
     }

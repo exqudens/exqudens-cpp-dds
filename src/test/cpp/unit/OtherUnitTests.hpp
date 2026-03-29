@@ -5,11 +5,9 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <exqudens/Log.hpp>
 #include <exqudens/log/api/Logging.hpp>
 
 #include "TestUtils.hpp"
-#include "exqudens/dds/Factory.hpp"
 
 class OtherUnitTests: public testing::Test {
 

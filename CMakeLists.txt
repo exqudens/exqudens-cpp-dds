@@ -271,6 +271,8 @@ if("${USE_CONAN}")
                         ${CONAN_OPTIONS}
                         "-o" "exqudens-cpp-log/*:shared=False"
                         "-o" "exqudens-cpp-log/*:header_only=True"
+                        "-o" "exqudens-cpp-threadpool/*:shared=False"
+                        "-o" "exqudens-cpp-threadpool/*:header_only=True"
                         "${PROJECT_SOURCE_DIR}/test-conanfile.py"
                 COMMAND_ECHO "STDERR"
                 ENCODING "UTF-8"
@@ -367,6 +369,11 @@ foreach(cmakePackageName IN LISTS "${PROJECT_NAME}_CMAKE_FIND_PACKAGE_NAMES")
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
         find_package("${cmakePackageName}" "${${PROJECT_NAME}_CMAKE_PACKAGE_${cmakePackageName}_VERSION}" EXACT QUIET)
     elseif("exqudens-cpp-log" STREQUAL "${cmakePackageName}")
+        file(REMOVE "${CONAN_INSTALL_PREFIX}/test/${cmakePackageName}Config.cmake")
+        file(REMOVE "${CONAN_INSTALL_PREFIX}/test/${cmakePackageName}-config.cmake")
+        list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
+        find_package("${cmakePackageName}" "${${PROJECT_NAME}_CMAKE_PACKAGE_${cmakePackageName}_VERSION}" EXACT QUIET)
+    elseif("exqudens-cpp-threadpool" STREQUAL "${cmakePackageName}")
         file(REMOVE "${CONAN_INSTALL_PREFIX}/test/${cmakePackageName}Config.cmake")
         file(REMOVE "${CONAN_INSTALL_PREFIX}/test/${cmakePackageName}-config.cmake")
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
@@ -524,6 +531,7 @@ if(NOT "${SKIP_TEST}")
         "GTest::gmock_main"
         "GTest::gtest_main"
         "exqudens-cpp-log::exqudens-cpp-log"
+        "exqudens-cpp-threadpool::exqudens-cpp-threadpool"
     )
     set_target_properties("test-lib" PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/test/bin"

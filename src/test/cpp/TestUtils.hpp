@@ -19,6 +19,7 @@ class TEST_LIB_EXPORT TestUtils {
             std::optional<std::string> executableFile = {};
             std::optional<std::string> executableDir = {};
             std::optional<std::string> projectBinaryDir = {};
+            std::optional<size_t> timeout = {};
         };
 
     private:
@@ -29,17 +30,23 @@ class TEST_LIB_EXPORT TestUtils {
 
         static void init(const std::vector<std::string>& input);
 
-        static std::string getExecutableFile();
+        static std::optional<std::string> getExecutableFile();
 
-        static std::string getExecutableDir();
+        static std::optional<std::string> getExecutableDir();
 
-        static std::string getProjectBinaryDir();
+        static std::optional<std::string> getProjectBinaryDir();
 
-        static std::string getTestOutputDir(const std::string& testGroup, const std::string& testCase);
+        static std::optional<size_t> getTimeout();
 
-        static std::string getProjectSourceDir();
+        static std::optional<std::string> getTestOutputDir(const std::string& testGroup, const std::string& testCase);
 
-        static std::string getTestInputDir(const std::string& testGroup, const std::string& testCase);
+        static std::optional<std::string> getProjectSourceDir();
+
+        static std::optional<std::string> getTestInputDir(const std::string& testGroup, const std::string& testCase);
+
+        static std::string lineSeparator();
+
+        static std::pair<int, std::string> executeCommandLine(const std::string& value);
 
         static std::vector<std::string> toStringVector(const std::exception& exception, std::vector<std::string> previous = {});
 

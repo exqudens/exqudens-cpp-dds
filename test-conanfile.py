@@ -15,6 +15,7 @@ class ConanConfiguration(ConanFile):
         try:
             self.requires("gtest/1.11.0")
             self.requires("exqudens-cpp-log/0.0.1")
+            self.requires("exqudens-cpp-threadpool/0.0.1")
         except Exception as e:
             self.output.error(e)
             raise e
