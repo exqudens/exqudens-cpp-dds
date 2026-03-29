@@ -85,6 +85,9 @@ TEST_F(PerformanceSystemTests, test1) {
         std::string testCase = testing::UnitTest::GetInstance()->current_test_info()->name();
         EXQUDENS_LOG_INFO(LOGGER_ID) << "bgn";
 
+        TestUtils::windowsOnlyCurrentProcessSetPriorityClass();
+        TestUtils::windowsOnlyTimeBeginPeriod();
+
         size_t maxSeconds = TestUtils::getTimeout().value_or(15);
         std::map<size_t, size_t> storage = {};
         uint32_t lastId = 1;
@@ -105,6 +108,8 @@ TEST_F(PerformanceSystemTests, test1) {
         writer->close();
         writer.reset();
 
+        TestUtils::windowsOnlyTimeEndPeriod();
+
         EXQUDENS_LOG_INFO(LOGGER_ID) << "end";
     } catch (const std::exception& e) {
         std::string errorMessage = TestUtils::toString(e);
@@ -118,6 +123,9 @@ TEST_F(PerformanceSystemTests, test2) {
         std::string testGroup = testing::UnitTest::GetInstance()->current_test_info()->test_suite_name();
         std::string testCase = testing::UnitTest::GetInstance()->current_test_info()->name();
         EXQUDENS_LOG_INFO(LOGGER_ID) << "bgn";
+
+        TestUtils::windowsOnlyCurrentProcessSetPriorityClass();
+        TestUtils::windowsOnlyTimeBeginPeriod();
 
         size_t maxSeconds = TestUtils::getTimeout().value_or(5);
         std::map<size_t, size_t> storage = createMilliSecondsCountMap(maxSeconds);
@@ -144,6 +152,8 @@ TEST_F(PerformanceSystemTests, test2) {
 
         reader->close();
         reader.reset();
+
+        TestUtils::windowsOnlyTimeEndPeriod();
 
         std::vector<std::string> errorLines = {};
         for (const std::pair<size_t, size_t>& pair : storage) {

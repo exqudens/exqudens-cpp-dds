@@ -11,6 +11,10 @@
 #include <sstream>
 #include <fstream>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 #include "TestUtils.hpp"
 
 #define CALL_INFO std::string(__FUNCTION__) + "(" + std::filesystem::path(__FILE__).filename().string() + ":" + std::to_string(__LINE__) + ")"
@@ -513,6 +517,43 @@ std::optional<size_t> TestUtils::bytesToSize(const std::vector<uint8_t>& value) 
     } catch (...) {
         std::throw_with_nested(std::runtime_error(CALL_INFO));
     }
+}
+
+void TestUtils::windowsOnlyCurrentProcessSetPriorityClass(const std::optional<unsigned long>& value) {
+#if defined(_WIN32) || defined(_WIN64)
+    try {
+        HANDLE hProcess = GetCurrentProcess();
+        if (!hProcess) {
+            throw std::runtime_error(CALL_INFO + ": unable to get current process handle");
+        }
+        DWORD dwPriorityClass = value.value_or(REALTIME_PRIORITY_CLASS);
+        if (!SetPriorityClass(hProcess, dwPriorityClass)) {
+            throw std::runtime_error(CALL_INFO + ": unable to set priority class for current process");
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+#endif
+}
+
+void TestUtils::windowsOnlyTimeBeginPeriod(const std::optional<unsigned int>& value) {
+#if defined(_WIN32) || defined(_WIN64)
+    try {
+        timeBeginPeriod(value.value_or(1));
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+#endif
+}
+
+void TestUtils::windowsOnlyTimeEndPeriod(const std::optional<unsigned int>& value) {
+#if defined(_WIN32) || defined(_WIN64)
+    try {
+        timeEndPeriod(value.value_or(1));
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO));
+    }
+#endif
 }
 
 #undef CALL_INFO

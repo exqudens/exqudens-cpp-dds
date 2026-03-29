@@ -86,4 +86,10 @@ class TEST_LIB_EXPORT TestUtils {
 
         static std::optional<size_t> bytesToSize(const std::vector<uint8_t>& value);
 
+        static void windowsOnlyCurrentProcessSetPriorityClass(const std::optional<unsigned long>& value = {});
+
+        static void windowsOnlyTimeBeginPeriod(const std::optional<unsigned int>& value = {});
+
+        static void windowsOnlyTimeEndPeriod(const std::optional<unsigned int>& value = {});
+
 };

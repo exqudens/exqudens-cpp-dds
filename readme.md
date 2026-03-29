@@ -44,3 +44,9 @@ use [Command Variable](https://marketplace.visualstudio.com/items?itemName=rioj7
 - get current using [GetCurrentProcess](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocess)
 - for threads begin [timeBeginPeriod](https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod)
 - for threads end [timeEndPeriod](https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timeendperiod)
+
+### additional
+
+- [soft-real-time](https://learn.microsoft.com/en-us/windows/iot/iot-enterprise/soft-real-time/soft-real-time)
+- [soft-real-time-device](https://learn.microsoft.com/en-us/windows/iot/iot-enterprise/soft-real-time/soft-real-time-device)
+- [soft-real-time-application](https://learn.microsoft.com/en-us/windows/iot/iot-enterprise/soft-real-time/soft-real-time-application)
